@@ -4,38 +4,37 @@ import logging
 
 class MessageReceiver:
     
-    def __init__(self, tabela, vizinhos, semaforos) -> None:
+    def __init__(self, tabela, semaforos, ip_address) -> None:
         self.tabela_roteamento = tabela
-        self.vizinhos = dict(zip(vizinhos, [0]*len(vizinhos)))
         self.semaforos = semaforos
+        self.server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.ip_address = ip_address
     
     def run(self) -> None:
-        server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         
-        
-        local = '10.32.160.172'
+        local = self.ip_address
         ip_port = (local, 5000)
         buff_size = 1024
         
-        server_socket.bind(ip_port)
+        self.server_socket.bind(ip_port)
         
         while(True):
             
-            message, ip_address = server_socket.recvfrom(buff_size)
+            message, ip_address = self.server_socket.recvfrom(buff_size)
             ip_address = ip_address[0]
             message = message.decode('utf-8')
             
             print('[RECEIVER_RUN]: RECEIVED')
             
             if message == '!':
-                self.vizinhos[ip_address] = 0
+                self.tabela_roteamento.vizinhos[ip_address] = 0
                 tabela_str = f'*{ip_address};{1}*'
             else:
                 tabela_str = message
             
             self.semaforos.semafTabela.acquire()
             atualizou = self.tabela_roteamento.update_tabela(tabela_str, ip_address, local)
-            self.vizinhos[ip_address] = 0 # Zera timeout dos vizinhos
+            self.tabela_roteamento.vizinhos[ip_address] = 0 # Zera timeout dos vizinhos
             self.semaforos.semafTabela.release()
             
             print('[RECEIVER_RUN]: TABLE UPDATED') 
@@ -53,9 +52,9 @@ class MessageReceiver:
             sleep(10)
             
             self.semaforos.semafTabela.acquire()
-            for ip in self.vizinhos.keys():
-                self.vizinhos[ip] += 1
-                if self.vizinhos[ip] > 3:
+            for ip in self.tabela_roteamento.vizinhos.keys():
+                self.tabela_roteamento.vizinhos[ip] += 1
+                if self.tabela_roteamento.vizinhos[ip] > 3:
                     self.tabela_roteamento.descarta_saida(ip)
                     print(f'[RECEIVER_TIMER]: NEGHBOR ROUTE DISCARDED {ip}')
                     print(self.tabela_roteamento)
@@ -64,3 +63,26 @@ class MessageReceiver:
             
             self.semaforos.semafTabela.release()
 
+
+if __name__ == '__main__':
+    
+    import threading
+    
+    class Semaforos:
+        def __init__(self) -> None:
+            self.semafSender = threading.Condition()
+            self.semafTabela = threading.Semaphore()
+    
+    from tabela_roteamento import TabelaRoteamento
+    
+    vizinhos = [
+        '10.32.162.190'
+        # '10.32.163.25'
+    ]
+    
+    sf = Semaforos()
+    tb = TabelaRoteamento(vizinhos)
+    
+    receiver = MessageReceiver(tb, sf)
+    
+    print(receiver.get_ip())

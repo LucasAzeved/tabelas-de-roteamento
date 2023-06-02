@@ -8,7 +8,9 @@ class TabelaRoteamento:
     tabela: dict[str, list[int, str]] = field(init=False) # formato: {'ip_destino': ['métrica', 'ip_saída']}
     
     def __post_init__(self):
-        self.tabela = {ip: [1, ip] for ip in self.vizinhos}
+        self.vizinhos = dict(zip(self.vizinhos, [0]*len(self.vizinhos)))
+        self.tabela = {ip: [1, ip] for ip in self.vizinhos.keys()}
+        
     
     def update_tabela(self, tabela_str: str, ip_address: str, local: str) -> bool:
         """
@@ -23,7 +25,10 @@ class TabelaRoteamento:
             if destino == local:
                 continue
             if destino not in self.tabela.keys():
-                self.tabela[destino] = [metrica+1, ip_address]
+                if destino in self.vizinhos.keys():
+                    self.tabela[destino] = [1, ip_address]
+                else:
+                    self.tabela[destino] = [metrica+1, ip_address]
                 atualizou = True
             elif (metrica+1) < self.tabela[destino][0]:
                 self.tabela[destino] = [metrica+1 , ip_address]
@@ -60,12 +65,13 @@ if __name__ == '__main__':
     t = TabelaRoteamento(vizinhos)
     
     print(t)
-    print(t.get_tabela_string())
+    print(t.vizinhos)
+    # print(t.get_tabela_string())
     
-    tab_up = '*192.168.1.2;2*192.168.1.4;2*'
-    tab_up = '*192.168.1.2;2*192.168.1.4;2*'
+    # tab_up = '*192.168.1.2;2*192.168.1.4;2*'
+    # tab_up = '*192.168.1.2;2*192.168.1.4;2*'
     
-    t.update_tabela(tab_up, 'NOVA ROTA')
+    # t.update_tabela(tab_up, 'NOVA ROTA')
     
-    print(t)
-    print(t.get_tabela_string())
+    # print(t)
+    # print(t.get_tabela_string())

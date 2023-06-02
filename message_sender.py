@@ -4,14 +4,12 @@ from time import sleep
 import logging
 
 class MessageSender:
-    def __init__(self, tabela, vizinhos, semaforos) -> None:
+    def __init__(self, tabela, semaforos) -> None:
         self.tabela_roteamento = tabela
-        self.vizinhos = vizinhos
         self.semaforos = semaforos
-        
     
     def send(self, send_data: str, clientSocket: socket.socket) -> None:
-        for ip in self.vizinhos:
+        for ip in self.tabela_roteamento.vizinhos.keys():
             try:
                 clientSocket.sendto(send_data, (ip, 5000)) # (IP, Porta)
             except:
@@ -70,7 +68,7 @@ if __name__ == '__main__':
     sf = Semaforos()
     tb = TabelaRoteamento(vizinhos)
 
-    sender = MessageSender(tb, vizinhos, sf)
+    sender = MessageSender(tb, sf)
 
     send_data = '*192.168.1.2;2*192.168.1.4;2*'.encode()
 
