@@ -22,14 +22,13 @@ class Roteador:
         print(self.tabela)
         print('\n')
     
-    
     def main(self) -> None:
         
         sender = MessageSender(self.tabela, self.vizinhos, self.semaforos)
         receiver = MessageReceiver(self.tabela, self.vizinhos, self.semaforos)
         
         # return
-    
+        
         th_receiver = threading.Thread(target=receiver.run)
         th_receiver_timer = threading.Thread(target=receiver.timer)
         th_sender = threading.Thread(target=sender.run)
