@@ -17,7 +17,7 @@ class TabelaRoteamento:
         Atualize a tabela de roteamento a partir da string recebida.
         """
         recebida = [[l.split(';')[0], int(l.split(';')[-1])] 
-                        for l in tabela_str[1:-1].split('*')]
+                            for l in tabela_str[1:].split('*')]
         
         atualizou = False
         
@@ -25,13 +25,16 @@ class TabelaRoteamento:
             if destino == local:
                 continue
             if destino not in self.tabela.keys():
-                if destino in self.vizinhos.keys():
+                if ip_address in self.vizinhos.keys() and destino == ip_address:
                     self.tabela[destino] = [1, ip_address]
                 else:
                     self.tabela[destino] = [metrica+1, ip_address]
                 atualizou = True
             elif (metrica+1) < self.tabela[destino][0]:
-                self.tabela[destino] = [metrica+1 , ip_address]
+                if ip_address in self.vizinhos.keys() and destino == ip_address:
+                    self.tabela[destino] = [1, ip_address]
+                else:
+                    self.tabela[destino] = [metrica+1 , ip_address]
                 atualizou = True
         
         return atualizou
@@ -44,9 +47,9 @@ class TabelaRoteamento:
     def get_tabela_string(self) -> str:
         """
         Converte a tabela de roteamento para string.
-        *IP_Destino;Métrica*IP_Destino;Métrica*...*
+        *IP_Destino;Métrica*IP_Destino;Métrica*...
         """
-        tabela_str = '*' + '*'.join([destino+';'+str(metrica) for destino, (metrica, _ ) in self.tabela.items()]) + '*'
+        tabela_str = '*' + '*'.join([destino+';'+str(metrica) for destino, (metrica, _ ) in self.tabela.items()])
         
         return tabela_str
     
@@ -66,12 +69,12 @@ if __name__ == '__main__':
     
     print(t)
     print(t.vizinhos)
-    # print(t.get_tabela_string())
+    print(t.get_tabela_string())
     
-    # tab_up = '*192.168.1.2;2*192.168.1.4;2*'
-    # tab_up = '*192.168.1.2;2*192.168.1.4;2*'
+    tab_up = '*192.168.1.2;1*192.168.1.4;1'
+    tab_up = '*192.168.1.2;1*192.168.1.4;1'
     
-    # t.update_tabela(tab_up, 'NOVA ROTA')
+    t.update_tabela(tab_up, 'NOVA ROTA', local='192.168.1.3')
     
-    # print(t)
-    # print(t.get_tabela_string())
+    print(t)
+    print(t.get_tabela_string())

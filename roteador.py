@@ -25,8 +25,8 @@ class Roteador:
     
     def main(self) -> None:
         
-        sender = MessageSender(self.tabela, self.vizinhos, self.semaforos)
-        receiver = MessageReceiver(self.tabela, self.vizinhos, self.semaforos, self.ip_address)
+        sender = MessageSender(self.tabela, self.semaforos)
+        receiver = MessageReceiver(self.tabela, self.semaforos, self.ip_address)
         
         # return
         

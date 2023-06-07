@@ -70,6 +70,6 @@ if __name__ == '__main__':
 
     sender = MessageSender(tb, sf)
 
-    send_data = '*192.168.1.2;2*192.168.1.4;2*'.encode()
+    send_data = '*192.168.1.2;2*192.168.1.4;2'.encode()
 
     sender.send(send_data, clientSocket)

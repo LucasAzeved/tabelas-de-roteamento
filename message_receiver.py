@@ -28,12 +28,15 @@ class MessageReceiver:
             
             if message == '!':
                 self.tabela_roteamento.vizinhos[ip_address] = 0
-                tabela_str = f'*{ip_address};{1}*'
+                tabela_str = f'*{ip_address};{1}'
             else:
                 tabela_str = message
             
             self.semaforos.semafTabela.acquire()
-            atualizou = self.tabela_roteamento.update_tabela(tabela_str, ip_address, local)
+            try:
+                atualizou = self.tabela_roteamento.update_tabela(tabela_str, ip_address, local)
+            except:
+                print(tabela_str)
             self.tabela_roteamento.vizinhos[ip_address] = 0 # Zera timeout dos vizinhos
             self.semaforos.semafTabela.release()
             
