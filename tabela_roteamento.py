@@ -1,5 +1,4 @@
 
-from tabulate import tabulate
 from dataclasses import dataclass, field
 
 @dataclass
@@ -14,7 +13,7 @@ class TabelaRoteamento:
     
     def update_tabela(self, tabela_str: str, ip_address: str, local: str) -> bool:
         """
-        Atualize a tabela de roteamento a partir da string recebida.
+        Atualiza a tabela de roteamento a partir da string recebida.
         """
         recebida = [[l.split(';')[0], int(l.split(';')[-1])] 
                             for l in tabela_str[1:].split('*')]
@@ -54,8 +53,13 @@ class TabelaRoteamento:
         return tabela_str
     
     def __repr__(self) -> str:
-        t = [[destino, metrica, saida] for destino, (metrica, saida) in self.tabela.items()]
-        return tabulate(t, headers=['Destino', 'Métrica', 'Saída'], tablefmt='pretty', stralign='center')
+        tab_print = f"+{''.center(17,'-')}+{''.center(9,'-')}+{''.center(17,'-')}+\n"
+        tab_print +=  f"|{'Destino':^17}|{'Métrica':^9}|{'Saída':^17}|\n"
+        tab_print += f"+{''.center(17,'-')}+{''.center(9,'-')}+{''.center(17,'-')}+\n"
+        for destino, (metrica, saida) in self.tabela.items():
+            tab_print += f"|{destino.center(17,' ')}|{str(metrica).center(9,' ')}|{saida.center(17,' ')}|\n"
+        tab_print += f"+{''.center(17,'-')}+{''.center(9,'-')}+{''.center(17,'-')}+\n"
+        return tab_print
 
 
 if __name__ == '__main__':

@@ -1,7 +1,6 @@
 
 import socket
 import threading
-import logging
 from pathlib import Path
 from tabela_roteamento import TabelaRoteamento
 from message_sender import MessageSender
@@ -14,12 +13,12 @@ class Semaforos:
 
 class Roteador:
     
-    def __init__(self, vizinhos, ip_address) -> None:
+    def __init__(self, vizinhos: list, ip_address: str) -> None:
         self.vizinhos = vizinhos
         self.ip_address = ip_address
         self.semaforos = Semaforos()
         self.tabela = TabelaRoteamento(self.vizinhos)
-        print('\n'+' Tabela inicial '.center(38, '#'))
+        print('\n'+' Tabela inicial '.center(47, '#'))
         print(self.tabela)
         print('\n')
     
@@ -51,10 +50,12 @@ class Aplicacao:
         pass
     
     def get_ip(self):
+        """
+        Obtem o IP do host
+        """
         server_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         server_socket.settimeout(0)
         try:
-            # doesn't even have to be reachable
             server_socket.connect(('10.254.254.254', 1))
             IP = server_socket.getsockname()[0]
         except Exception:
@@ -98,14 +99,9 @@ class Aplicacao:
         file = Path(__file__).parent.resolve() / file
         
         with open(file, 'r') as f:
-            content = [l.split(';') for l in f.read().split('\n')]
-        
-        vizinhos = dict(zip([ip for ip, _ in content], [[] for _ in content]))
-        
-        for k, v in content:
-            vizinhos[k].append(v)
-            
-        return vizinhos[local_ip]
+            vizinhos = [l for l in f.read().split('\n')]
+
+        return vizinhos
     
     def menu(self) -> None:
         
@@ -134,7 +130,7 @@ class Aplicacao:
         r.main()
         
         quit_options = ('0', 'exit', 'quit', 'q')
-        print(f'Inicializando')
+        print(f'Inicializando...')
         print(f'Para finalizar: {quit_options}')
         while True:
             q = input()
@@ -143,19 +139,6 @@ class Aplicacao:
 
 
 def main():
-    # n = (len(sys.argv) > 1) and sys.argv[1]
-
-    # vizinhos = [
-    #     '192.168.1.2',
-    #     '192.168.1.4',
-    # ]
-    
-    # r = Roteador(vizinhos)
-    
-    # print(r.tabela)
-    # print(r.tabela.get_tabela_string())
-    
-    # r.main()
     
     app = Aplicacao()
     

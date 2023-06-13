@@ -1,6 +1,6 @@
+
 import socket
 from time import sleep
-import logging
 
 class MessageReceiver:
     
@@ -36,7 +36,7 @@ class MessageReceiver:
             try:
                 atualizou = self.tabela_roteamento.update_tabela(tabela_str, ip_address, local)
             except:
-                print(tabela_str)
+                print(f'Erro update_tabela. str: {tabela_str}')
             self.tabela_roteamento.vizinhos[ip_address] = 0 # Zera timeout dos vizinhos
             self.semaforos.semafTabela.release()
             
@@ -83,9 +83,10 @@ if __name__ == '__main__':
         # '10.32.163.25'
     ]
     
+    ip_addr = '10.32.162.10'
+    
     sf = Semaforos()
     tb = TabelaRoteamento(vizinhos)
     
-    receiver = MessageReceiver(tb, sf)
+    receiver = MessageReceiver(tb, sf, ip_addr)
     
-    print(receiver.get_ip())

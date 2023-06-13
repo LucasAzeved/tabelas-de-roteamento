@@ -1,25 +1,24 @@
 
 import socket
 from time import sleep
-import logging
 
 class MessageSender:
     def __init__(self, tabela, semaforos) -> None:
         self.tabela_roteamento = tabela
         self.semaforos = semaforos
     
-    def send(self, send_data: str, clientSocket: socket.socket) -> None:
+    def send(self, send_data, clientSocket: socket.socket) -> None:
         for ip in self.tabela_roteamento.vizinhos.keys():
             try:
                 clientSocket.sendto(send_data, (ip, 5000)) # (IP, Porta)
             except:
-                logging.exception('')
+                print('Erro no send.')
 
     
     def run(self) -> None:
         
         clientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        self.send('!'.encode(), clientSocket)
+        self.send(r'!'.encode(), clientSocket)
         
         while True:
             self.semaforos.semafSender.acquire()
